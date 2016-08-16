@@ -12,9 +12,9 @@ func TestCodec_Read(t *testing.T) {
 		return json.MarshalIndent(v, "", "  ")
 	}
 	c := NewCodec(func(c *Codec) {
-		c.TreeReader = NewFileTreeReader("json", "_")
-		c.Reader = jsonWriter
-		c.Writer = jsonWriter
+		c.treeReader = NewFileTreeReader("json", "_")
+		c.reader = jsonWriter
+		c.writer = jsonWriter
 	})
 
 	v := TestStruct{}
