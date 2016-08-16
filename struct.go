@@ -121,7 +121,12 @@ func (n *StructNode) prepareFileData(val Val) interface{} {
 	}
 	out := make(map[string]interface{}, len(n.Fields))
 	for name := range n.Fields {
-		out[name] = val.GetField(name).Interface()
+		f := val.GetField(name)
+		// This excludes unexported fields.
+		if !f.CanInterface() {
+			continue
+		}
+		out[name] = f.Interface()
 	}
 	return out
 }

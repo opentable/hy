@@ -12,6 +12,7 @@ import (
 )
 
 type TestStruct struct {
+	unexportedField     string                      // not output anywhere
 	Name                string                      // regular field
 	Int                 int                         // regular field
 	InlineSlice         []string                    // regular field
