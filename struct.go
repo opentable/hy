@@ -121,6 +121,11 @@ func (n *StructNode) prepareFileData(val Val) (interface{}, bool) {
 	if val.IsZero() {
 		return nil, false
 	}
+	// Optimisation which also results in preserving field order.
+	if len(n.Children) == 0 {
+		return val.Final().Interface(), true
+	}
+	// Otherwise, we construct a map.
 	out := make(map[string]interface{}, len(n.Fields))
 	for name := range n.Fields {
 		f := val.GetField(name)
