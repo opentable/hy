@@ -93,9 +93,11 @@ func (n *StructNode) WriteTargets(c WriteContext, val Val) error {
 	if !val.ShouldWrite() {
 		return nil
 	}
-	fieldData := n.prepareFileData(val)
-	if err := c.SetRawValue(fieldData); err != nil {
-		return errors.Wrap(err, "writing self")
+	fieldData, any := n.prepareFileData(val)
+	if any || n.HasKey {
+		if err := c.SetRawValue(fieldData); err != nil {
+			return errors.Wrap(err, "writing self")
+		}
 	}
 	if val.IsZero() {
 		val = n.NewVal()
@@ -115,9 +117,9 @@ func (n *StructNode) WriteTargets(c WriteContext, val Val) error {
 	return nil
 }
 
-func (n *StructNode) prepareFileData(val Val) interface{} {
+func (n *StructNode) prepareFileData(val Val) (interface{}, bool) {
 	if val.IsZero() {
-		return nil
+		return nil, false
 	}
 	out := make(map[string]interface{}, len(n.Fields))
 	for name := range n.Fields {
@@ -128,5 +130,5 @@ func (n *StructNode) prepareFileData(val Val) interface{} {
 		}
 		out[name] = f.Interface()
 	}
-	return out
+	return out, len(out) != 0
 }

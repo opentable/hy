@@ -204,3 +204,22 @@ func (ft FileTarget) TestDataDump() string {
 	}
 	return string(data)
 }
+
+type NoFields struct {
+	Child *NoFields `hy:"nofields"`
+}
+
+func TestNode_Write_noFields(t *testing.T) {
+	c := NewCodec()
+	thing := NoFields{&NoFields{}}
+	node, err := c.Analyse(thing)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := NewWriteContext()
+	node.Write(ctx, node.NewValFrom(reflect.ValueOf(thing)))
+	if ctx.targets.Len() != 0 {
+		t.Errorf("got %d targets; want 0", ctx.targets.Len())
+		t.Error(ctx.targets.Paths())
+	}
+}
