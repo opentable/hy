@@ -17,6 +17,19 @@ type Val struct {
 	IsPtr bool
 }
 
+// NewFreeValFrom creates a new free value (not attached to any node).
+func NewFreeValFrom(v reflect.Value) Val {
+	if v.Kind() == reflect.Ptr {
+		return Val{Ptr: v, IsPtr: true}
+	}
+	if v.CanAddr() {
+		return Val{Ptr: v.Addr()}
+	}
+	ptr := reflect.New(v.Type())
+	ptr.Elem().Set(v)
+	return Val{Ptr: ptr}
+}
+
 // Final returns the final reflect.Value.
 func (v Val) Final() reflect.Value {
 	if v.IsPtr {
@@ -50,6 +63,7 @@ func (v Val) GetField(name string) reflect.Value {
 	return v.Ptr.Elem().FieldByName(name)
 }
 
+// Method wraps MethodByName.
 func (v Val) Method(name string) reflect.Value {
 	if _, ok := v.Ptr.Type().MethodByName(name); ok {
 		return v.Ptr.MethodByName(name)
@@ -79,6 +93,20 @@ func (v Val) MapElements(elemNode Node) []Val {
 // It panics if v is not a slice.
 func (v Val) Append(val Val) {
 	reflect.Append(v.Ptr.Elem(), val.Final())
+}
+
+// Interface selects the pointer or non-pointer version of this val that
+// satisfies the filter function. It returns nil, false if none pass the filter.
+func (v Val) Interface(filter func(interface{}) bool) (interface{}, bool) {
+	ptrInterface := v.Ptr.Interface()
+	if filter(ptrInterface) {
+		return ptrInterface, true
+	}
+	elemInterface := v.Ptr.Elem().Interface()
+	if filter(elemInterface) {
+		return elemInterface, true
+	}
+	return nil, false
 }
 
 // SliceElements returns a slice of Vals representing the index, value pairs
