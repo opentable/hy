@@ -50,6 +50,13 @@ func (v Val) GetField(name string) reflect.Value {
 	return v.Ptr.Elem().FieldByName(name)
 }
 
+func (v Val) Method(name string) reflect.Value {
+	if _, ok := v.Ptr.Type().MethodByName(name); ok {
+		return v.Ptr.MethodByName(name)
+	}
+	return v.Ptr.Elem().MethodByName(name)
+}
+
 // SetMapElement sets a map element using key and value from val.
 // It panics if this value is not a map with corresponding key and value types.
 func (v Val) SetMapElement(val Val) {
