@@ -31,6 +31,7 @@ type TestStruct struct {
 	TextMarshalerKey    map[TextMarshaler]*StructB  `hy:"textmarshaler/"`    // file per element
 	TextMarshalerPtrKey map[*TextMarshaler]*StructB `hy:"textmarshalerptr/"` // file per element
 	SpecialMap          SpecialMap                  `hy:"specialmap/"`       // file per element
+	SpecialMapPtr       *SpecialMap                 `hy:"specialmapptr/"`    // file per element
 }
 
 type SpecialMap struct {
@@ -112,6 +113,10 @@ var testWriteStructData = TestStruct{
 	SpecialMap: SpecialMap{m: map[TextMarshaler]*StructB{
 		{"Special", 3}:  {Name: "Special"},
 		{"Another", 15}: nil,
+	}},
+	SpecialMapPtr: &SpecialMap{m: map[TextMarshaler]*StructB{
+		{"Special", 4}:  {Name: "Special Ptr"},
+		{"Another", 16}: nil,
 	}},
 }
 

@@ -120,6 +120,14 @@ func init() {
 		{FilePath: "specialmap/Another-15",
 			Value: nil,
 		},
+		{FilePath: "specialmapptr/Special-4",
+			Value: map[string]interface{}{
+				"Name": "Special Ptr",
+			},
+		},
+		{FilePath: "specialmapptr/Another-16",
+			Value: nil,
+		},
 	}...)
 	if err != nil {
 		panic(err)
