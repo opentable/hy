@@ -2,7 +2,6 @@ package hy
 
 import (
 	"encoding/json"
-	"os"
 	"testing"
 )
 
@@ -19,23 +18,18 @@ func TestCodec_Read_json_roundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := os.RemoveAll("testdata/roundtripped"); err != nil {
+	actualJSONBytes, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
 		t.Fatal(err)
 	}
-	if err := c.Write("testdata/roundtripped", v); err != nil {
+	expectedJSONBytes, err := json.MarshalIndent(testData, "", "  ")
+	if err != nil {
 		t.Fatal(err)
 	}
-
-	v2 := TestStruct{}
-	if err := c.Read("testdata/roundtripped", &v2); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := os.RemoveAll("testdata/roundtripped2"); err != nil {
-		t.Fatal(err)
-	}
-	if err := c.Write("testdata/roundtripped2", &v2); err != nil {
-		t.Fatal(err)
+	actualJSON := string(actualJSONBytes)
+	expectedJSON := string(expectedJSONBytes)
+	if actualJSON != expectedJSON {
+		t.Errorf("\n\ngot:\n\n%s\n\nwant:\n\n%s", actualJSON, expectedJSON)
 	}
 }
 
