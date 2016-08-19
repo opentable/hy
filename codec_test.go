@@ -59,7 +59,7 @@ func TestCodec_Write(t *testing.T) {
 
 	})
 
-	if err := c.Write(prefix, testWriteStructData); err != nil {
+	if err := c.Write(prefix, testData); err != nil {
 		t.Fatal(err)
 	}
 

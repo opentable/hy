@@ -71,7 +71,7 @@ func (tm *TextMarshaler) UnmarshalText(text []byte) error {
 	return nil
 }
 
-var testWriteStructData = TestStruct{
+var testData = TestStruct{
 	Name:        "Test struct writing",
 	Int:         1,
 	InlineSlice: []string{"a", "string", "slice"},
@@ -144,7 +144,7 @@ func TestNode_Write_struct(t *testing.T) {
 		t.Fatal(err)
 	}
 	wc := NewWriteContext()
-	v := reflect.ValueOf(testWriteStructData)
+	v := reflect.ValueOf(testData)
 	val := n.NewValFrom(v)
 	if err := n.Write(wc, val); err != nil {
 		t.Fatal(err)
