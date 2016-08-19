@@ -7,14 +7,10 @@ import (
 )
 
 func TestCodec_Read_json_roundTrip(t *testing.T) {
-	jsonWriter := JSONWriter
-	jsonWriter.MarshalFunc = func(v interface{}) ([]byte, error) {
-		return json.MarshalIndent(v, "", "  ")
-	}
 	c := NewCodec(func(c *Codec) {
-		c.treeReader = NewFileTreeReader("json", "_")
-		c.reader = jsonWriter
-		c.writer = jsonWriter
+		c.MarshalFunc = func(v interface{}) ([]byte, error) {
+			return json.MarshalIndent(v, "", "  ")
+		}
 	})
 
 	v := TestStruct{}

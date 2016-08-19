@@ -12,7 +12,7 @@ func TestFileTreeReader_ReadTree(t *testing.T) {
 	}
 
 	actualLen := targets.Len()
-	expectedLen := 21
+	expectedLen := 31
 	if actualLen != expectedLen {
 		t.Errorf("got %d targets; want %d", actualLen, expectedLen)
 	}
