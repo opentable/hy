@@ -111,8 +111,9 @@ var testWriteStructData = TestStruct{
 		"Second": {},
 	},
 	TextMarshalerKey: map[TextMarshaler]*StructB{
-		{"Test", 1}:     nil,
-		{"Another", 13}: nil,
+		// Slashes should translate to directories.
+		{"Test/blah/blah", 1}: nil,
+		{"Another/blah", 13}:  nil,
 	},
 	TextMarshalerPtrKey: map[*TextMarshaler]*StructB{
 		{"Test", 2}:     nil,
