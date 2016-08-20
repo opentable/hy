@@ -114,12 +114,17 @@ func (n *MapNode) ReadTargets(c ReadContext, val Val) error {
 			return errors.Wrapf(err, "reading child %s", keyStr)
 		}
 		// TODO: Don't calculate these values every time.
+		mapLen := val.Ptr.Elem().Len()
 		if reflect.DeepEqual(elemVal.Ptr.Elem().Interface(), reflect.New(elemVal.Ptr.Type().Elem()).Elem().Interface()) {
-			nv := reflect.New(elemVal.Ptr.Type()).Elem().Elem()
+			nv := reflect.New(elemVal.Ptr.Type()).Elem()
 			val.Ptr.Elem().SetMapIndex(elemVal.Key, nv)
 		} else {
 			val.Ptr.Elem().SetMapIndex(elemVal.Key, elemVal.Final())
 			//val.SetMapElement(elemVal)
+		}
+		newLen := val.Ptr.Elem().Len()
+		if newLen == mapLen {
+			panic("NOTHING ADDED")
 		}
 	}
 	return nil

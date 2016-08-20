@@ -2,6 +2,7 @@ package hy
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/kr/pretty"
@@ -76,9 +77,36 @@ func TestCodec_Read_json(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	diffs := pretty.Diff(expected, actual)
+	diffs := pretty.Diff(actual, expected)
 	for _, d := range diffs {
+		// NOTE 1: When keys are pointers, they are always different, so ignore
+		// that diff. This is tested manually below.
+		if strings.Contains(d, "TextMarshalerPtrKey") {
+			continue
+		}
 		t.Error(d, "\n")
+	}
+
+	// Manual test for TextMarshalerPtrKey field (see note 1 above).
+	actualPtrKeyStrMap := map[string]*StructB{}
+	expectedPtrKeyStrMap := map[string]*StructB{}
+	for k, v := range actual.TextMarshalerPtrKey {
+		strKey, err := k.MarshalText()
+		if err != nil {
+			t.Fatal(err)
+		}
+		actualPtrKeyStrMap[string(strKey)] = v
+	}
+	for k, v := range expected.TextMarshalerPtrKey {
+		strKey, err := k.MarshalText()
+		if err != nil {
+			t.Fatal(err)
+		}
+		expectedPtrKeyStrMap[string(strKey)] = v
+	}
+	ptrKeyDiffs := pretty.Diff(actualPtrKeyStrMap, expectedPtrKeyStrMap)
+	for _, d := range ptrKeyDiffs {
+		t.Error(d)
 	}
 }
 

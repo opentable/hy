@@ -42,8 +42,10 @@ type SpecialMap struct {
 	m map[TextMarshaler]*StructB
 }
 
-func (s SpecialMap) SetAll(m map[TextMarshaler]*StructB) { s.m = m }
-func (s SpecialMap) GetAll() map[TextMarshaler]*StructB  { return s.m }
+func (s *SpecialMap) SetAll(m map[TextMarshaler]*StructB) {
+	s.m = m
+}
+func (s *SpecialMap) GetAll() map[TextMarshaler]*StructB { return s.m }
 
 // SpecialPtrMap is very similar to SpecialMap, except that we define its GetAll
 // and SetAll methods on its pointer receiver.
