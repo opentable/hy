@@ -1,8 +1,6 @@
 package hy
 
-import (
-	"reflect"
-)
+import "reflect"
 
 // Val wraps a reflect.Value so other code does not need to be aware of pointer
 // wrapping and unwrapping.
@@ -49,7 +47,6 @@ func (v Val) FinalInterface() interface{} {
 	}
 	if v.IsZero() && v.IsPtr {
 		panic("NIL")
-		return nil
 	}
 	return v.Final().Interface()
 }
@@ -105,8 +102,8 @@ func (v Val) MapElements(elemNode Node) []Val {
 
 // Append appends a val to this slice.
 // It panics if v is not a slice.
-func (v Val) Append(val Val) {
-	reflect.Append(v.Ptr.Elem(), val.Final())
+func (v Val) Append(elem Val) {
+	v.Ptr.Elem().Set(reflect.Append(v.Ptr.Elem(), elem.Final()))
 }
 
 // Interface selects the pointer or non-pointer version of this val that
