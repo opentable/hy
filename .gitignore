@@ -1,2 +1,3 @@
 testdata/*
 !testdata/in
+!testdata/in-unset-keys

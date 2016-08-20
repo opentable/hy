@@ -20,13 +20,13 @@ func TestNode_Write_struct(t *testing.T) {
 		t.Fatal(err)
 	}
 	targets := wc.targets
-	expectedLen := len(expectedFileTargetsSnapshot)
+	expectedLen := len(testFileTargetsSnapshot)
 	if targets.Len() != expectedLen {
 		t.Errorf("got len %d; want %d", targets.Len(), expectedLen)
 	}
 	actualTargets := targets.Snapshot()
 	for fileName, actual := range actualTargets {
-		expected, ok := expectedFileTargetsSnapshot[fileName]
+		expected, ok := testFileTargetsSnapshot[fileName]
 		if !ok {
 			t.Errorf("extra file generated at %s:\n%s", fileName, actual.TestDump())
 			continue
@@ -57,7 +57,7 @@ func TestNode_Write_struct(t *testing.T) {
 				actual.TestDump(), expected.TestDump())
 		}
 	}
-	for fileName := range expectedFileTargetsSnapshot {
+	for fileName := range testFileTargetsSnapshot {
 		if _, ok := actualTargets[fileName]; !ok {
 			t.Errorf("missing file %q", fileName)
 		}
