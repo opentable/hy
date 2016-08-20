@@ -66,7 +66,7 @@ func TestNode_Read_struct(t *testing.T) {
 }
 
 func TestCodec_Read_json(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	c := NewCodec()
 
 	actual := TestStruct{}
