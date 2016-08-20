@@ -18,7 +18,6 @@ type Val struct {
 // NewFreeValFrom creates a new free value (not attached to any node).
 func NewFreeValFrom(v reflect.Value) Val {
 	if v.Kind() == reflect.Ptr {
-		//panic("NEW PTR")
 		return Val{Ptr: v, IsPtr: true}
 	}
 	if v.CanAddr() {
@@ -39,15 +38,6 @@ func (v Val) Final() reflect.Value {
 
 // FinalInterface returns the true final value as an interface{}.
 func (v Val) FinalInterface() interface{} {
-	if v.IsPtr {
-		panic("PTR")
-	}
-	if v.IsZero() {
-		panic("ZERO")
-	}
-	if v.IsZero() && v.IsPtr {
-		panic("NIL")
-	}
 	return v.Final().Interface()
 }
 

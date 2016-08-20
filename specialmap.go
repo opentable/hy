@@ -109,21 +109,13 @@ func (n *SpecialMapNode) ChildPathName(child Node, key, val reflect.Value) strin
 
 // ReadTargets delegates to MapNode.
 func (n *SpecialMapNode) ReadTargets(c ReadContext, val Val) error {
-	if !val.Ptr.Elem().IsValid() {
-		panic("SMIIIII")
-	}
 	mapVal := n.Map.NewVal()
 	if err := n.Map.ReadTargets(c, mapVal); err != nil {
 		return err
 	}
-	//log.Println("SPECIAL MAP LEN:", mapVal.Final().Len())
-	//for _, k := range mapVal.Final().MapKeys() {
-	//	log.Println("KEY:", k.Interface(), "VAL:", mapVal.Final().MapIndex(k).Interface())
-	//}
 	if err := n.SetAll(val, mapVal.Final()); err != nil {
 		return errors.Wrapf(err, "calling %s.SetAll", n.Type)
 	}
-
 	return errors.Wrapf(n.SetAll(val, mapVal.Final()), "setting map")
 }
 
