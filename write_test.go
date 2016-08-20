@@ -3,139 +3,9 @@ package hy
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"reflect"
-	"strings"
 	"testing"
-
-	"github.com/pkg/errors"
 )
-
-type TestStruct struct {
-	unexportedField     string                      // not output anywhere
-	Name                string                      // regular field
-	Int                 int                         // regular field
-	InlineSlice         []string                    // regular field
-	InlineMap           map[string]int              // regular field
-	StructB             StructB                     // regular field
-	StructBPtr          *StructB                    // regular field
-	IgnoredField        string                      `hy:"-"`                 // not output anywhere
-	StructFile          StructB                     `hy:"a-file"`            // a single file
-	StringFile          string                      `hy:"a-string-file"`     // a single file
-	SliceFile           []string                    `hy:"a-slice-file"`      // a single file
-	MapFile             map[string]string           `hy:"a-map-file"`        // a single file
-	Nested              *TestStruct                 `hy:"nested"`            // like a new root
-	Slice               []StructB                   `hy:"slice/"`            // file per element
-	Map                 map[string]StructB          `hy:"map/,Name"`         // file per element
-	MapOfPtr            map[string]*StructB         `hy:"map-of-ptr/,Name"`  // file per element
-	TextMarshalerKey    map[TextMarshaler]*StructB  `hy:"textmarshaler/"`    // file per element
-	TextMarshalerPtrKey map[*TextMarshaler]*StructB `hy:"textmarshalerptr/"` // file per element
-	SpecialMap          SpecialMap                  `hy:"specialmap/"`       // file per element
-	SpecialMapPtr       *SpecialMap                 `hy:"specialmapptr/"`    // file per element
-	SpecialPtrMap       SpecialPtrMap               `hy:"specialptrmap/"`    // file per element
-	SpecialPtrMapPtr    *SpecialPtrMap              `hy:"specialptrmapptr/"` // file per element
-}
-
-type SpecialMap struct {
-	m map[TextMarshaler]*StructB
-}
-
-type SpecialPtrMap struct {
-	m map[TextMarshaler]*StructB
-}
-
-func (s SpecialMap) SetAll(m map[TextMarshaler]*StructB)     { s.m = m }
-func (s SpecialMap) GetAll() map[TextMarshaler]*StructB      { return s.m }
-func (s *SpecialPtrMap) SetAll(m map[TextMarshaler]*StructB) { s.m = m }
-func (s *SpecialPtrMap) GetAll() map[TextMarshaler]*StructB  { return s.m }
-
-type TextMarshaler struct {
-	String string
-	Int    int
-}
-
-func (tm TextMarshaler) MarshalText() ([]byte, error) {
-	return []byte(fmt.Sprintf("%s-%d", tm.String, tm.Int)), nil
-}
-
-func (tm *TextMarshaler) UnmarshalText(text []byte) error {
-	s := string(text)
-	s = strings.Replace(s, "-", " ", -1)
-	n, err := fmt.Sscanf(s, "%s %d", &tm.String, &tm.Int)
-	if err != nil && err != io.EOF {
-		return errors.Wrapf(err, "unmarshaling %s", s)
-	}
-	if n != 2 {
-		return errors.Errorf("%s has %d missing fields", s, 2-n)
-	}
-	return nil
-}
-
-var testData = TestStruct{
-	Name:        "Test struct writing",
-	Int:         1,
-	InlineSlice: []string{"a", "string", "slice"},
-	InlineMap:   map[string]int{"one": 1, "two": 2, "three": 3},
-	StructFile:  StructB{Name: "A file"},
-	StringFile:  "A string in a file.",
-	Nested: &TestStruct{
-		Name: "A nested struct pointer.",
-		Int:  2,
-		Slice: []StructB{
-			{Name: "Nested One"}, {Name: "Nested Two"},
-		},
-		Nested: &TestStruct{
-			SliceFile: []string{"this", "is", "a", "slice", "in", "a", "file"},
-			MapFile:   map[string]string{"deeply-nested": "map", "in a file": "yes"},
-		},
-		StructFile: StructB{
-			Name: "Struct B file",
-		},
-		MapOfPtr: map[string]*StructB{
-			"a-nil-file":           nil,
-			"another-nil-file":     nil,
-			"this-one-has-a-value": {},
-		},
-		Map: map[string]StructB{
-			// Notice how we don't set the Name field here. Hy sets it in the write
-			// data because of the ",Name" tag.
-			"a-zero-file":       {},
-			"another-zero-file": {},
-		},
-	},
-	Slice: []StructB{{Name: "One"}, {Name: "Two"}},
-	Map: map[string]StructB{
-		// Notice how we don't set the Name field here. Hy sets it in the write
-		// data because of the ",Name" tag.
-		"First":  {},
-		"Second": {},
-	},
-	TextMarshalerKey: map[TextMarshaler]*StructB{
-		// Slashes should translate to directories.
-		{"Test/blah/blah", 1}: nil,
-		{"Another/blah", 13}:  nil,
-	},
-	TextMarshalerPtrKey: map[*TextMarshaler]*StructB{
-		{"Test", 2}:     nil,
-		{"Another", 14}: nil,
-	},
-	SpecialMap: SpecialMap{m: map[TextMarshaler]*StructB{
-		{"Special", 3}:  {Name: "Special"},
-		{"Another", 15}: nil,
-	}},
-	SpecialMapPtr: &SpecialMap{m: map[TextMarshaler]*StructB{
-		{"Special", 4}:  {Name: "Special Ptr"},
-		{"Another", 16}: nil,
-	}},
-	SpecialPtrMap: SpecialPtrMap{m: map[TextMarshaler]*StructB{
-		{"Special", 5}:  {Name: "Ptr Special"},
-		{"Another", 17}: nil,
-	}},
-	SpecialPtrMapPtr: &SpecialPtrMap{m: map[TextMarshaler]*StructB{
-		{"Special", 6}:  {Name: "Ptr Special Ptr"},
-		{"Another", 18}: nil,
-	}},
-}
 
 func TestNode_Write_struct(t *testing.T) {
 	c := NewCodec()
@@ -144,7 +14,7 @@ func TestNode_Write_struct(t *testing.T) {
 		t.Fatal(err)
 	}
 	wc := NewWriteContext()
-	v := reflect.ValueOf(testData)
+	v := reflect.ValueOf(testDataSimple)
 	val := n.NewValFrom(v)
 	if err := n.Write(wc, val); err != nil {
 		t.Fatal(err)

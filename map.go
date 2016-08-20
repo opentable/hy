@@ -106,6 +106,10 @@ func (n *MapNode) ReadTargets(c ReadContext, val Val) error {
 		elemContext := c.Push(keyStr)
 		elemVal := elem.NewKeyedVal(keyVal)
 		err := elem.Read(elemContext, elemVal)
+		// Set key field.
+		if n.Field != nil && n.Field.KeyField != "" {
+			n.Field.SetKeyFunc.Call([]reflect.Value{elemVal.Ptr, elemVal.Key})
+		}
 		if err != nil {
 			return errors.Wrapf(err, "reading child %s", keyStr)
 		}
@@ -121,6 +125,7 @@ func (n *MapNode) WriteTargets(c WriteContext, val Val) error {
 	}
 	elemNode := *n.ElemNode
 	for _, elemVal := range val.MapElements(elemNode) {
+		// Set key field.
 		if n.Field != nil && n.Field.KeyField != "" {
 			n.Field.SetKeyFunc.Call([]reflect.Value{elemVal.Ptr, elemVal.Key})
 		}

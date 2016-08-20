@@ -3,14 +3,12 @@ package hy
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/kr/pretty"
 )
 
-func TestCodec_Read_json_roundTrip(t *testing.T) {
-	c := NewCodec(func(c *Codec) {
-		c.MarshalFunc = func(v interface{}) ([]byte, error) {
-			return json.MarshalIndent(v, "", "  ")
-		}
-	})
+func TestCodec_Read_json(t *testing.T) {
+	c := NewCodec()
 
 	v := TestStruct{}
 
@@ -18,18 +16,9 @@ func TestCodec_Read_json_roundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actualJSONBytes, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		t.Fatal(err)
-	}
-	expectedJSONBytes, err := json.MarshalIndent(testData, "", "  ")
-	if err != nil {
-		t.Fatal(err)
-	}
-	actualJSON := string(actualJSONBytes)
-	expectedJSON := string(expectedJSONBytes)
-	if actualJSON != expectedJSON {
-		t.Errorf("\n\ngot:\n\n%s\n\nwant:\n\n%s", actualJSON, expectedJSON)
+	diffs := pretty.Diff(testDataSimple, v)
+	for _, d := range diffs {
+		t.Error(d)
 	}
 }
 

@@ -20,6 +20,7 @@ type Val struct {
 // NewFreeValFrom creates a new free value (not attached to any node).
 func NewFreeValFrom(v reflect.Value) Val {
 	if v.Kind() == reflect.Ptr {
+		//panic("NEW PTR")
 		return Val{Ptr: v, IsPtr: true}
 	}
 	if v.CanAddr() {
@@ -30,7 +31,7 @@ func NewFreeValFrom(v reflect.Value) Val {
 	return Val{Ptr: ptr}
 }
 
-// Final returns the final reflect.Value.
+// Final returns the final reflect.Value. Note that this will never be nil.
 func (v Val) Final() reflect.Value {
 	if v.IsPtr {
 		return v.Ptr
@@ -38,11 +39,24 @@ func (v Val) Final() reflect.Value {
 	return v.Ptr.Elem()
 }
 
+// FinalInterface returns the true final value as an interface{}.
+func (v Val) FinalInterface() interface{} {
+	if v.IsPtr {
+		panic("PTR")
+	}
+	if v.IsZero() {
+		panic("ZERO")
+	}
+	if v.IsZero() && v.IsPtr {
+		panic("NIL")
+		return nil
+	}
+	return v.Final().Interface()
+}
+
 // IsZero means "is zero or nil or invalid".
 func (v Val) IsZero() bool {
-	return v.Ptr.IsNil() ||
-		!v.Ptr.Elem().IsValid() ||
-		reflect.DeepEqual(v.Ptr.Elem().Interface(), v.Base.Zero)
+	return v.Ptr.IsNil() || reflect.DeepEqual(v.Ptr.Elem().Interface(), v.Base.Zero)
 }
 
 // ShouldWrite returns true if this value is not zero or if it does have a key.
